@@ -132,15 +132,6 @@ add_subdirectory(configuration)
 add_subdirectory(src)
 
 if(NOT "${FRUIT_IS_BEING_BUILT_BY_CONAN}")
-  if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    # Do not exclude these from "make all" in debug mode, they must build.
-    add_subdirectory(examples)
-    add_subdirectory(tests)
-  else()
-    add_subdirectory(examples EXCLUDE_FROM_ALL)
-    add_subdirectory(tests)
-  endif()
-
   add_subdirectory(extras EXCLUDE_FROM_ALL)
 endif()
 
@@ -152,3 +143,7 @@ set(CPACK_PACKAGE_NAME "Fruit")
 set(CPACK_PACKAGE_VENDOR "Marco Poletti")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Fruit - Dependency Injection Framework For C++")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "Fruit")
+
+LibImport("dmtest" "thirdparty/dmtest")
+ExeImport("examples" "fruit")
+ExeImport("test" "fruit;dmtest")

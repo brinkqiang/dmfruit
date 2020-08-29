@@ -16,7 +16,7 @@
 
 #include "cached_greeter.h"
 #include "fake_key_value_storage.h"
-#include <gtest/gtest.h>
+#include "gtest.h"
 
 fruit::Component<fruit::Annotated<Cached, Greeter>> getMainComponent() {
   return fruit::createComponent()
