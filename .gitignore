@@ -7,6 +7,7 @@ bench_results
 *.pyc
 /build*
 /__build*
+/bin*
 /test_package/build
 /cmake-build-debug
 /cmake-build-release
