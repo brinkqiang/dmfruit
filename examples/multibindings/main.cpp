@@ -20,64 +20,75 @@
 using fruit::Component;
 using fruit::Injector;
 
-class Listener {
+class Listener
+{
 public:
-  virtual void notify() = 0;
+    virtual void notify() = 0;
 };
 
-class Listener1 : public Listener {
+class Listener1 : public Listener
+{
 public:
-  INJECT(Listener1()) = default;
+    INJECT(Listener1()) = default;
 
-  void notify() override {
-    std::cout << "Listener 1 notified" << std::endl;
-  }
+    void notify() override
+    {
+        std::cout << "Listener 1 notified" << std::endl;
+    }
 };
 
-class Writer {
+class Writer
+{
 public:
-  virtual void write(std::string s) = 0;
+    virtual void write(std::string s) = 0;
 };
 
 // To show that we can inject parameters of multibindings
-class StdoutWriter : public Writer {
+class StdoutWriter : public Writer
+{
 public:
-  INJECT(StdoutWriter()) = default;
+    INJECT(StdoutWriter()) = default;
 
-  void write(std::string s) override {
-    std::cout << s << std::endl;
-  }
+    void write(std::string s) override
+    {
+        std::cout << s << std::endl;
+    }
 };
 
-class Listener2 : public Listener {
+class Listener2 : public Listener
+{
 private:
-  Writer* writer;
+    Writer* writer;
 
 public:
-  INJECT(Listener2(Writer* writer)) : writer(writer) {}
+    INJECT(Listener2(Writer* writer)) : writer(writer) {}
 
-  void notify() override {
-    writer->write("Listener 2 notified");
-  }
+    void notify() override
+    {
+        writer->write("Listener 2 notified");
+    }
 };
 
-Component<> getListenersComponent() {
-  // Here they are in the same component to keep it simple, but Fruit collects all multibindings in installed
-  // components.
-  return fruit::createComponent()
-      .bind<Writer, StdoutWriter>()
-      .addMultibinding<Listener, Listener1>()
-      .addMultibinding<Listener, Listener2>();
+Component<> getListenersComponent()
+{
+    // Here they are in the same component to keep it simple, but Fruit collects all multibindings in installed
+    // components.
+    return fruit::createComponent()
+           .bind<Writer, StdoutWriter>()
+           .addMultibinding<Listener, Listener1>()
+           .addMultibinding<Listener, Listener2>();
 }
 
-int main() {
-  Injector<> injector(getListenersComponent);
-  std::vector<Listener*> listeners = injector.getMultibindings<Listener>();
+int main()
+{
+    Injector<> injector(getListenersComponent);
+    std::vector<Listener*> listeners = injector.getMultibindings<Listener>();
 
-  // The order of the returned listeners is unspecified, so the lines in output may have any order.
-  for (Listener* listener : listeners) {
-    listener->notify();
-  }
+    // The order of the returned listeners is unspecified, so the lines in output may have any order.
+    for (Listener* listener : listeners)
+    {
+        listener->notify();
+    }
 
-  return 0;
+    return 0;
 }
