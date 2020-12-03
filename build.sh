@@ -10,9 +10,9 @@
 # sh configure
 # popd
 
-rm -rf __build
-mkdir -p __build
-pushd __build
+rm -rf build
+mkdir -p build
+pushd build
 
 cmake -DCMAKE_BUILD_TYPE=relwithdebinfo ..
 cmake --build . --config debug
