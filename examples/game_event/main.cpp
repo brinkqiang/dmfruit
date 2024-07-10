@@ -33,25 +33,38 @@ public:
 
 // Template for type-specific listeners
 template <typename T>
-class TypedEventListener : public EventListener {
+class TypedEventListener : virtual public EventListener {
 public:
   virtual void onEvent(const T& event) = 0;
 };
 
 // Concrete listeners
-class PlayerMovementListener : public TypedEventListener<PlayerMoveEvent> {
+class PlayerMovementListener : virtual public TypedEventListener<PlayerMoveEvent> {
 public:
   INJECT(PlayerMovementListener()) = default;
   void onEvent(const PlayerMoveEvent& event) override {
-    std::cout << "Player moved to (" << event.x << ", " << event.y << ")" << std::endl;
+    std::cout << "PlayerMovementListener moved to (" << event.x << ", " << event.y << ")" << std::endl;
   }
 };
 
-class EnemySpawnListener : public TypedEventListener<EnemySpawnEvent> {
+class EnemySpawnListener : virtual public TypedEventListener<EnemySpawnEvent> {
 public:
   INJECT(EnemySpawnListener()) = default;
   void onEvent(const EnemySpawnEvent& event) override {
-    std::cout << "Enemy " << event.enemyType << " spawned at (" << event.x << ", " << event.y << ")" << std::endl;
+    std::cout << "EnemySpawnListener Enemy " << event.enemyType << " spawned at (" << event.x << ", " << event.y << ")" << std::endl;
+  }
+};
+
+class PlayerListener : virtual public TypedEventListener<PlayerMoveEvent>,
+                       virtual public TypedEventListener<EnemySpawnEvent> {
+public:
+  INJECT(PlayerListener()) = default;
+  void onEvent(const PlayerMoveEvent& event) override {
+    std::cout << "PlayerListener moved to (" << event.x << ", " << event.y << ")" << std::endl;
+  }
+  void onEvent(const EnemySpawnEvent& event) override {
+    std::cout << "PlayerListener enemy " << event.enemyType << " spawned at (" << event.x << ", " << event.y
+              << ")" << std::endl;
   }
 };
 
@@ -84,6 +97,7 @@ fruit::Component<EventDispatcher> getEventSystemComponent() {
   return fruit::createComponent()
       .addMultibinding<EventListener, PlayerMovementListener>()
       .addMultibinding<EventListener, EnemySpawnListener>()
+      .addMultibinding<EventListener, PlayerListener>()
       .registerProvider([]() { return new EventDispatcher(); });
 }
 
@@ -100,6 +114,10 @@ int main() {
     }
     if (auto enemySpawnListener = dynamic_cast<EnemySpawnListener*>(listener)) {
       dispatcher->addEventListener(enemySpawnListener);
+    }
+    if (auto playerListener = dynamic_cast<PlayerListener*>(listener)) {
+        dispatcher->addEventListener(dynamic_cast<TypedEventListener<PlayerMoveEvent>*>(playerListener));
+        dispatcher->addEventListener(dynamic_cast<TypedEventListener<EnemySpawnEvent>*>(playerListener));
     }
   }
 
