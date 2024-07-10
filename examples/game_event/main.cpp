@@ -14,15 +14,19 @@ public:
 // Specific event types
 class PlayerMoveEvent : public GameEvent {
 public:
-  float x, y;
-  PlayerMoveEvent(float x, float y) : x(x), y(y) {}
+  uint64_t uid;
+  float x;
+  float y;
+  PlayerMoveEvent(uint64_t uid, float x, float y) : uid(uid), x(x), y(y) {}
 };
 
 class EnemySpawnEvent : public GameEvent {
 public:
   std::string enemyType;
-  float x, y;
-  EnemySpawnEvent(const std::string& type, float x, float y) : enemyType(type), x(x), y(y) {}
+  uint64_t uid;
+  float x;
+  float y;
+  EnemySpawnEvent(const std::string& type, uint64_t uid, float x, float y) : enemyType(type), uid(uid), x(x), y(y) {}
 };
 
 // Base listener class
@@ -43,7 +47,7 @@ class PlayerMovementListener : virtual public TypedEventListener<PlayerMoveEvent
 public:
   INJECT(PlayerMovementListener()) = default;
   void onEvent(const PlayerMoveEvent& event) override {
-    std::cout << "PlayerMovementListener moved to (" << event.x << ", " << event.y << ")" << std::endl;
+    std::cout << "PlayerMovementListener uid: " << event.uid << " moved to (" << event.x << ", " << event.y << ")" << std::endl;
   }
 };
 
@@ -51,7 +55,7 @@ class EnemySpawnListener : virtual public TypedEventListener<EnemySpawnEvent> {
 public:
   INJECT(EnemySpawnListener()) = default;
   void onEvent(const EnemySpawnEvent& event) override {
-    std::cout << "EnemySpawnListener Enemy " << event.enemyType << " spawned at (" << event.x << ", " << event.y << ")" << std::endl;
+    std::cout << "EnemySpawnListener uid: " << event.uid << " enemyType:" << event.enemyType << " spawned at (" << event.x << ", " << event.y << ")" << std::endl;
   }
 };
 
@@ -60,11 +64,12 @@ class PlayerListener : virtual public TypedEventListener<PlayerMoveEvent>,
 public:
   INJECT(PlayerListener()) = default;
   void onEvent(const PlayerMoveEvent& event) override {
-    std::cout << "PlayerListener moved to (" << event.x << ", " << event.y << ")" << std::endl;
+    std::cout << "PlayerListener uid: " << event.uid << " moved to (" << event.x << ", " << event.y << ")"
+              << std::endl;
   }
   void onEvent(const EnemySpawnEvent& event) override {
-    std::cout << "PlayerListener enemy " << event.enemyType << " spawned at (" << event.x << ", " << event.y
-              << ")" << std::endl;
+    std::cout << "PlayerListener uid: " << event.uid << " enemyType:" << event.enemyType << " spawned at ("
+              << event.x << ", " << event.y << ")" << std::endl;
   }
 };
 
@@ -122,8 +127,8 @@ int main() {
   }
 
   // Dispatch events
-  dispatcher->dispatchEvent(PlayerMoveEvent(10.0f, 20.0f));
-  dispatcher->dispatchEvent(EnemySpawnEvent("Goblin", 15.0f, 25.0f));
+  dispatcher->dispatchEvent(PlayerMoveEvent(10001, 10.0f, 20.0f));
+  dispatcher->dispatchEvent(EnemySpawnEvent("Goblin", 10001, 15.0f, 25.0f));
 
   return 0;
 }
