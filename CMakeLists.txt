@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.8)
 
 PROJECT(dmfruit VERSION 3.6.0 LANGUAGES CXX)
 
